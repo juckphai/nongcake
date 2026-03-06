@@ -4687,29 +4687,60 @@ function summarizeToday() {
     openSummaryOutputModal();
 }
 
-// [🔧 แก้ไข] ฟังก์ชัน summarizeAll
+// [🔧 แก้ไข] ฟังก์ชัน summarizeAll (ปรับให้แสดงวันที่ตามข้อมูลจริง)
 function summarizeAll() {
     if (!currentAccount) {
         showToast("❌ กรุณาเลือกบัญชีก่อน", 'error');
         return;
     }
-    
-    const startDate = new Date(2000, 0, 1);
-    const endDate = new Date(2100, 11, 31, 23, 59, 59, 999);
-    
-    const summaryResult = generateSummaryData(startDate, endDate);
+
+    // 1. ตรวจสอบว่ามีข้อมูลในบัญชีหรือไม่
+    const accountRecords = records.filter(r => r.account === currentAccount);
+    if (accountRecords.length === 0) {
+        showToast("❌ ไม่มีข้อมูลในบัญชีนี้ให้สรุป", 'error');
+        return;
+    }
+
+    // 2. หาวันที่น้อยที่สุด (วันเริ่มต้น) และมากที่สุด (วันล่าสุด) จากข้อมูลจริง
+    const allDates = accountRecords.map(r => parseLocalDateTime(r.dateTime));
+    const startDate = new Date(Math.min.apply(null, allDates));
+    const endDate = new Date(Math.max.apply(null, allDates));
+
+    // 3. ปรับเวลาให้ครอบคลุมทั้งวัน (00:00:00 ถึง 23:59:59)
+    startDate.setHours(0, 0, 0, 0);
+    const adjustedEndDate = new Date(endDate);
+    adjustedEndDate.setHours(23, 59, 59, 999);
+
+    const summaryResult = generateSummaryData(startDate, adjustedEndDate);
     if (!summaryResult) return;
+
+    // 4. คำนวณจำนวนวันทั้งหมด และ วันที่ทำธุรกรรมจริง
+    const daysDiff = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    const transactionDays = new Set(summaryResult.periodRecords.map(r => parseLocalDateTime(r.dateTime).toDateString()));
+    const activeDays = transactionDays.size;
+    const inactiveDaysCount = daysDiff - activeDays;
+
+    // 5. สร้างข้อความแสดงจำนวนวัน (ปรับสีสันให้เข้ากับธีมของ script.js)
+    const transactionDaysInfo = `<p style="color: #673ab7; font-weight: bold;">จำนวนทั้งหมด ${daysDiff} วัน (ทำธุรกรรม ${activeDays} วัน, ไม่ได้ทำ ${inactiveDaysCount} วัน)</p>`;
+
+    // 6. แปลงวันที่สำหรับนำไปแสดงผล
+    const startDateStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+    const endDateStr = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
+    const thaiDateString = `${startDate.toLocaleDateString('th-TH', {day: 'numeric', month: 'long', year: 'numeric'})} ถึง ${endDate.toLocaleDateString('th-TH', {day: 'numeric', month: 'long', year: 'numeric'})}`;
     
     // ✅ เพิ่มกล่องรับข้อความหมายเหตุ
     const remarkInput = prompt("กรุณากรอกหมายเหตุ (ถ้าไม่กรอกจะใช้ 'No comment'):", "No comment") || "No comment";
 
+    // 7. ส่งข้อมูลไปยัง Context เพื่อวาดหน้าจอสรุปผล
     summaryContext = {
         summaryResult: summaryResult,
-        title: 'สรุปข้อมูลทั้งหมด',
-        dateString: 'ตั้งแต่อดีตถึงปัจจุบัน',
+        title: 'สรุปข้อมูลทั้งหมดตั้งแต่',
+        dateString: `${startDateStr} ถึง ${endDateStr}`,
         remark: remarkInput, // ✅ นำข้อความมาแสดง
+        transactionDaysInfo: transactionDaysInfo, // แสดงข้อความจำนวนวัน
+        activeDays: activeDays, // ส่งค่านี้เพื่อให้คำนวณ "รายได้/รายจ่าย เฉลี่ยต่อวัน" ได้
         type: 'all',
-        thaiDateString: 'ตั้งแต่อดีตถึงปัจจุบัน',
+        thaiDateString: thaiDateString,
         headerLine1: 'สรุปทั้งหมด :',
         headerLine2: 'เงินในบัญชีทั้งหมด =',
         headerLine3: 'รายการทั้งหมด'
