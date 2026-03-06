@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>บัญชีรายรับรายจ่าย</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4a90e2"/>
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="บัญชีรายรับรายจ่าย">
+  <link rel="apple-touch-icon" href="./192.png">
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+
+<body>
+
+<div id="login-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 90%; max-width: 350px; text-align: center;">
+        <h2 style="color: #4a90e2; margin-bottom: 20px;">🔐 เข้าสู่ระบบ</h2>
+        
+        <input type="email" id="loginEmail" placeholder="อีเมลของคุณ" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+        
+        <div style="position: relative; margin-bottom: 10px;">
+            <input type="password" id="loginPassword" placeholder="รหัสผ่าน" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;">
+            <span onclick="togglePassword()" style="position: absolute; right: 10px; top: 10px; cursor: pointer;">👁️</span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px;">
+            <label style="cursor: pointer; display: flex; align-items: center;">
+                <input type="checkbox" id="rememberMe" checked style="margin-right: 5px;"> จำรหัสผ่านไว้
+            </label>
+        </div>
+
+        <button onclick="emailLogin()" style="width: 100%; padding: 10px; background-color: #4a90e2; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">เข้าสู่ระบบ</button>
+        <p id="loginError" style="color: red; font-size: 14px; margin-top: 10px;"></p>
+    </div>
+</div>
+
+<div class="container" style="padding:0; border:none; background:none;">
+    <div id="install-guide" class="install-prompt">
+        <span class="close-prompt" onclick="this.parentElement.style.display='none'">&times;</span>
+        <h4>ติดตั้งแอปนี้ลงในเครื่องของคุณ!</h4>
+        <ul>
+            <li><b>สำหรับ Android:</b> เบราว์เซอร์ Chrome จะมีปุ่ม "ติดตั้งแอป" หรือ "เพิ่มไปยังหน้าจอหลัก" แสดงขึ้นมาให้กด</li>
+            <li><b>สำหรับ iPhone (iOS):</b> เปิดใน Safari แล้วกดที่ปุ่ม "แชร์" (Share) จากนั้นเลือก "เพิ่มไปยังหน้าจอโฮม" (Add to Home Screen)</li>
+        </ul>
+        <p style="color: red; font-weight: bold; margin-top: 10px; margin-bottom: 0;">
+            ข้อควรระวังสำหรับ iPhone: ระบบอาจลบข้อมูลที่บันทึกไว้หากไม่ได้ใช้งานนานๆ หรือพื้นที่เหลือน้อย! <br>แนะนำให้ "บันทึกข้อมูลทั้งหมด (ทุกบัญชี)" หรือ "บันทึกเป็น XLSX" เพื่อสำรองข้อมูลสม่ำเสมอ
+        </p>
+    </div>
+</div>
+
+<div style="text-align: center; margin-top: 5px;">
+    <div class="container">
+        <div style="width: 100%; max-width: 900px; margin: 10px auto;">
+            <div id="user-status-bar" style="display:none; background-color: #e3f2fd; color: #0d47a1; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 15px; border: 1px solid #90caf9; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <span style="font-weight: normal;">👤 ผู้ใช้งานปัจจุบัน:</span> 
+                <span id="current-user-display" style="font-weight: bold; margin-left: 5px;">-</span>
+            </div>
+            
+            <div class="file-actions" style="display: flex; flex-direction: row !important; justify-content: center; align-items: center; gap: 10px; width: 100%; max-width: 900px; margin: 0 auto;">
+              
+              <div class="file-button-wrapper" style="width: auto; margin: 0; display: flex;">
+                <input type="file" id="fileInput" onchange="loadFromFile(event)" style="display: none;" accept=".json,application/json,.csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                <button type="button" onclick="document.getElementById('fileInput').click()" 
+                        class="action-button" 
+                        style="width: auto !important; min-width: auto; height: 50px; padding: 0 20px; font-size: 14px; background-color: #196B24; color: #FFFFFF; border: 5px solid #FFFFFF; border-radius: 30px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); margin: 0; white-space: nowrap;">
+                  📂 โหลดข้อมูลบัญชี
+                </button>
+              </div>
+
+              <button id="btnLogout" onclick="emailLogout()" 
+                      style="display: none; width: auto !important; min-width: auto; height: 50px; padding: 0 20px; font-size: 14px; background-color: #dc3545; color: #FFFFFF; border: 5px solid #FFFFFF; border-radius: 30px; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.2); align-items: center; justify-content: center; margin: 0;">
+                  🚪 ออกจากระบบ
+              </button>
+
+            </div>
+            
+            <div style="text-align: center; margin-top: 10px;">
+              <h1 style="text-align: center; color: blue; font-size: 16px;">
+                ชื่อบัญชี - <span id="accountName"></span>
+              </h1>
+              
+              <div class="section-header main-section-header header-account" onclick="toggleMainSection('account-section')">
+                <span>🏦 เลือกและจัดการบัญชี</span>
+                <span class="arrow">▶</span>
+              </div>
+              <div id="account-section" class="section-content main-section-content">
+                <label for="accountSelect">เลือกบัญชี:</label>
+                <select id="accountSelect" onchange="changeAccount()"></select>
+                
+                <div class="sub-section-header" onclick="toggleSubSection('manage-account-submenu')">
+                  <span>⚙️ จัดการบัญชี</span>
+                  <span class="arrow">▶</span>
+                </div>
+                <div id="manage-account-submenu" class="section-content sub-section-content">
+                  <div class="compact-button-group manage-account-buttons">
+                    <button type="button" onclick="addAccount()" title="เพิ่มบัญชีใหม่">
+                      <span class="button-icon">➕</span>เพิ่มบช.
+                    </button>
+                    <button type="button" onclick="deleteAccount()" title="ลบบัญชี">
+                      <span class="button-icon">🗑️</span>ลบบช.
+                    </button>
+                    <button type="button" onclick="editAccount()" title="แก้ไขชื่อบัญชี">
+                      <span class="button-icon">✏️</span>แก้ไขบช.
+                    </button>
+                    <button type="button" onclick="openChangePasswordModal()" title="เปลี่ยนรหัสผ่านเข้าสู่ระบบ" style="background-color: #ffc107; color: #000;">
+                      <span class="button-icon">🔑</span>เปลี่ยนรหัส
+                    </button>
+                  </div>
+                </div>
+              </div>
+            
+              <div class="section-header main-section-header header-add-data" onclick="toggleMainSection('add-data-section')">
+                <span>📝 เพิ่มข้อมูล</span>
+                <span class="arrow">▶</span>
+              </div>
+              <div id="add-data-section" class="section-content main-section-content">
+                <div class="entry-form">
+                  <div class="entry-group date-time-group">
+                    <label for="entryDate">📅 วันที่</label>
+                    <input type="date" id="entryDate">
+                  </div>
+                  <div class="entry-group date-time-group">
+                    <label for="entryTime">⏰ เวลา</label>
+                    <input type="time" id="entryTime">
+                  </div>
+                </div>
+
+                <div class="amount-type-group">
+                  <div class="entry-group amount-group">
+                    <label for="amount">💰 จำนวนเงิน</label>
+                    <input type="number" id="amount" required>
+                  </div>
+                  
+                  <div class="entry-group type-group">
+                    <label for="type">📊 ประเภท</label>
+                    <input list="typeList" id="type" required placeholder="เลือกหรือพิมพ์ประเภท" style="height: 40px;" onfocus="showAllTypes(this)" onblur="restoreType(this)">
+                    <datalist id="typeList"></datalist>
+                  </div>
+                </div>
+
+                <div class="sub-section-header" onclick="toggleSubSection('manage-types-submenu')" style="margin-top:8px;">
+                  <span>🏷️ จัดการประเภท</span>
+                  <span class="arrow">▶</span>
+                </div>
+                <div id="manage-types-submenu" class="section-content sub-section-content">
+                  <div class="compact-button-group manage-type-buttons">
+                    <button onclick="addNewType()" title="เพิ่มประเภทใหม่">
+                      <span class="button-icon">➕</span>เพิ่มประเภท
+                    </button>
+                    <button onclick="editType()" title="แก้ไขประเภท">
+                      <span class="button-icon">✏️</span>แก้ไขประเภท
+                    </button>
+                    <button onclick="deleteType()" title="ลบประเภท">
+                      <span class="button-icon">🗑️</span>ลบประเภท
+                    </button>
+                  </div>
+                </div>
+
+                <div class="entry-group">
+                  <label for="description">📄 รายละเอียด</label>
+                  <input type="text" id="description" required>
+                </div>
+                
+                <div class="sub-section-header" onclick="toggleSubSection('import-data-main-submenu')">
+                  <span>🔄 เติมข้อมูล</span>
+                  <span class="arrow">▶</span>
+                </div>
+                <div id="import-data-main-submenu" class="section-content sub-section-content">
+                  
+                  <div id="import-from-account-section">
+                    <label class="summary-subsection-header" style="color: #673ab7; margin-bottom: 10px;">🔄 เติมข้อมูลจากบัญชีอื่น</label>
+                    <div class="entry-form">
+                      <div class="entry-group">
+                        <label for="importAccountSelect">เลือกบัญชีต้นทาง</label>
+                        <select id="importAccountSelect"></select>
+                      </div>
+                      <div class="entry-group">
+                        <label for="importDate">เลือกวันที่ของข้อมูล</label>
+                        <input type="date" id="importDate">
+                      </div>
+                    </div>
+                    <div class="button-container" style="text-align: center; margin-top: 10px;">
+                      <button type="button" onclick="importEntriesFromAccount()" style="background-color: #673ab7;">🔄 ดึงข้อมูลมาเติม</button>
+                    </div>
+                  </div>
+
+                  <div id="import-from-file-section" style="border-top: 1px solid #ccc; margin-top: 15px; padding-top: 15px;">
+                    <label class="summary-subsection-header" style="color: #009688; margin-bottom: 10px;">📁 เติมข้อมูลจากไฟล์ (รายวัน)</label>
+                    <p style="text-align:center; color:#333; margin-bottom:10px;">
+                      ใช้สำหรับนำเข้าไฟล์ที่ได้จากการ "บันทึกเฉพาะวันที่เลือก" เพื่อเติมข้อมูลลงในบัญชีปัจจุบัน
+                    </p>
+                    <input type="file" id="mergeFileInput" onchange="importFromFileForMerging(event)" style="display: none;" accept=".json,application/json,.csv,text/csv">
+                    <div class="button-container" style="text-align: center;">
+                      <button type="button" onclick="document.getElementById('mergeFileInput').click()" style="background-color: #009688;">📁 เลือกไฟล์ข้อมูลรายวัน</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="entry-group" id="multiAccountSelector" style="display: none; margin-top: 10px;">
+                  <div class="sub-section-header" onclick="toggleSubSection('multi-account-submenu')">
+                    <span>👥 เพิ่มรายการนี้ในบัญชีอื่นด้วย</span>
+                    <span class="arrow">▶</span>
+                  </div>
+                  <div id="multi-account-submenu" class="section-content sub-section-content">
+                    <div id="multiAccountCheckboxes" class="checkbox-container">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="button-container" style="text-align: center; margin-top: 20px;">
+                  <button type="button" onclick="addEntry()" style="background-color: #e91e63;">➕ เพิ่มข้อมูล</button>
+                </div>
+              </div>
+              
+              <div class="section-header main-section-header header-actions" onclick="toggleMainSection('other-actions-section')">
+                <span>🔧 จัดการข้อมูล</span>
+                <span class="arrow">▶</span>
+              </div>
+              <div id="other-actions-section" class="section-content main-section-content">
+                <div class="button-container" style="display: flex; gap: 10px; margin-top: 10px;">
+                  <button onclick="toggleRecordsVisibility()" style="flex: 1; background-color: #607d8b;">👁️ แสดง/ซ่อนรายการ</button>
+                </div>
+                
+                <div class="sub-section-header" onclick="toggleSubSection('backup-password-submenu')">
+                  <span>🔒 ตั้งรหัสผ่านไฟล์สำรอง (JSON)</span>
+                  <span class="arrow">▶</span>
+                </div>
+                <div id="backup-password-submenu" class="section-content sub-section-content">
+                  <p style="text-align: left; color: #333;">รหัสผ่านนี้จะใช้เข้ารหัสไฟล์สำรองข้อมูล (JSON) โดยอัตโนมัติเพื่อความปลอดภัย</p>
+                  <form id="backup-password-form">
+                    <div class="entry-group" style="margin-bottom:10px;">
+                      <label for="backup-password" style="text-align:left;">รหัสผ่านใหม่ (เว้นว่างเพื่อลบ):</label>
+                      <input type="password" id="backup-password" placeholder="พิมพ์รหัสผ่านที่นี่">
+                    </div>
+                    <div class="entry-group" style="margin-bottom:10px;">
+                      <label for="backup-password-confirm" style="text-align:left;">ยืนยันรหัสผ่านใหม่:</label>
+                      <input type="password" id="backup-password-confirm" placeholder="พิมพ์รหัสผ่านอีกครั้ง">
+                    </div>
+                    <div class="entry-group" style="margin-bottom:10px;">
+                      <label style="font-weight: normal; cursor: pointer; text-align:left; display:inline-flex; align-items:center; gap: 5px;">
+                        <input type="checkbox" id="show-backup-password" style="width:auto;"> 👁️ แสดงรหัสผ่าน
+                      </label>
+                    </div>
+                    <div class="button-container">
+                      <button type="submit" style="background-color: #28a745;">💾 บันทึกรหัสผ่าน</button>
+                    </div>
+                  </form>
+                  <p id="password-status" style="font-weight: bold; margin-top: 15px; text-align:center;"></p>
+                </div>
+                
+                <div class="button-container" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                  <button type="button" onclick="saveToLocal()" style="flex: 1; background-color: #17a2b8;">💾 บันทึกชั่วคราว</button>
+                  <button type="button" onclick="openExportOptionsModal()" style="flex: 1; background-color: #0d47a1;">💾 บันทึกข้อมูล</button>
+                </div>
+                
+                <div class="summary-subsection" style="text-align: center;">
+                  <label class="summary-subsection-header" style="color: #c0392b;">🗑️ ลบข้อมูลตามวันที่เลือก (ในบัญชีนี้)</label>
+                  <div class="centered-date-form">
+                    <div class="centered-date-group">
+                      <label for="deleteByDateInput">เลือกวันที่ต้องการลบ:</label>
+                      <input type="date" id="deleteByDateInput">
+                    </div>
+                  </div>
+                  <div class="button-container" style="text-align: center; margin-top: 10px;">
+                    <button type="button" onclick="deleteRecordsByDate()" style="background-color: #dc3545;">🗑️ ลบข้อมูลวันที่เลือก</button>
+                  </div>
+                </div>
+              </div>
+            
+              <div class="section-header main-section-header header-summary" onclick="toggleMainSection('summary-main-section')">
+                <span>📊 สรุปข้อมูล</span>
+                <span class="arrow">▶</span>
+              </div>
+              <div id="summary-main-section" class="section-content main-section-content">
+                <div class="summary-subsection">
+                  <div class="button-container" style="margin: 0;">
+                    <button type="button" onclick="summarizeToday()" style="background-color: #ff9800; color: #FFFFFF;">📅 สรุปวันนี้</button>
+                  </div>
+                </div>
+                <div class="summary-subsection">
+                  <div class="button-container" style="margin: 0;">
+                    <button type="button" onclick="summarizeAll()" style="background-color: #673ab7; color: #FFFFFF;">📈 สรุปข้อมูลทั้งหมด</button>
+                  </div>
+                </div>
+                
+                <div class="summary-subsection" style="text-align: center;">
+                  <label class="summary-subsection-header">📅 สรุปวันที่เลือก</label>
+                  <div class="centered-date-form">
+                    <div class="centered-date-group">
+                      <label for="customDayMonth">วันที่:</label>
+                      <input type="date" id="customDayMonth">
+                    </div>
+                  </div>
+                  <div class="button-container" style="text-align: center; margin-top: 10px;">
+                    <button type="button" onclick="summarizeByDayMonth()" style="background-color: #03a9f4;">📊 สรุปวันที่เลือก</button>
+                  </div>
+                </div>
+                
+                <!-- 🟢 ส่วนที่ปรับปรุงตามคำแนะนำ: สรุปวันที่ถึงวันที่ + ย้อนหลัง X วัน -->
+                <div class="summary-subsection" style="text-align: center;">
+                  <label class="summary-subsection-header">📆 สรุปวันที่ถึงวันที่</label>
+                  
+                  <!-- Radio Buttons สำหรับเลือกโหมด -->
+                  <div style="margin-top:10px; margin-bottom:10px; text-align:center;">
+                    <label style="margin-right:15px; cursor:pointer;">
+                      <input type="radio" name="summaryMode" value="range" checked onchange="toggleGeneralSummaryMode()"> เลือกช่วงวันที่
+                    </label>
+                    <label style="cursor:pointer;">
+                      <input type="radio" name="summaryMode" value="lastX" onchange="toggleGeneralSummaryMode()"> ย้อนหลัง X วัน
+                    </label>
+                  </div>
+
+                  <!-- Container สำหรับเลือกช่วงวันที่ (ค่าเริ่มต้นแสดง) -->
+                  <div id="generalRangeContainer">
+                    <div class="centered-date-form horizontal">
+                      <div class="centered-date-group">
+                        <label for="startDate">จากวันที่:</label>
+                        <input type="date" id="startDate">
+                      </div>
+                      <div class="centered-date-group">
+                        <label for="endDate">ถึงวันที่:</label>
+                        <input type="date" id="endDate">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Container สำหรับกรอกจำนวนวัน (ซ่อนไว้ก่อน) พร้อมปุ่มคำนวณและพรีวิว -->
+                  <div id="generalLastXContainer" style="display: none; margin-top:10px;">
+                    <label>จำนวนวัน: 
+                      <input type="number" id="summaryLastXDays" min="1" placeholder="เช่น 7, 30" style="width:100px; padding:5px;">
+                    </label>
+                    <button type="button" onclick="calculateGeneralLastXRange()" style="margin-left:10px; background-color:#28a745; color: white; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer;">
+                      คำนวณช่วงวันที่
+                    </button>
+                    <div id="generalLastXPreview" style="margin-top:10px; font-weight:bold; color: #009688;"></div>
+                  </div>
+
+                  <!-- Checkbox แสดงรายละเอียด -->
+                  <div style="text-align: center; margin-top: 8px;">
+                    <label style="cursor: pointer; display: inline-flex; align-items: center; gap: 5px; color: #333;">
+                      <input type="checkbox" id="showDetailsRange"> แสดงรายละเอียดรายการ
+                    </label>
+                  </div>
+
+                  <!-- ปุ่มสรุปข้อมูล -->
+                  <div class="button-container" style="text-align: center; margin-top: 10px;">
+                    <button type="button" onclick="summarize()" style="background-color: #009688;">📊 สรุปวันที่ถึงวันที่</button>
+                  </div>
+                </div>
+
+                <!-- ✅ ส่วน สรุปผลแต่ละวัน (คงเดิม) -->
+                <div id="daily-summary-section" class="summary-subsection card export-area" style="text-align: center; margin-top: 20px; border-top: 2px solid #4a90e2; padding-top: 15px;">
+                  <label class="summary-subsection-header" style="color: #4a90e2; font-size: 18px;">📊 สรุปผลแต่ละวัน</label>
+                  
+                  <!-- 🔷 โหมดการเลือกช่วงวันที่ -->
+                  <div style="margin-top:15px; text-align:center;">
+                    <div style="margin-bottom:10px;">
+                      <label>
+                        <input type="radio" name="dailyMode" value="range" checked onchange="toggleDailyMode()">
+                        เลือกช่วงวันที่เอง
+                      </label>
+                      <label style="margin-left:20px;">
+                        <input type="radio" name="dailyMode" value="lastX" onchange="toggleDailyMode()">
+                        แสดง X วันล่าสุด
+                      </label>
+                    </div>
+
+                    <!-- 🔹 ส่วนเลือกช่วงวันที่เอง (ค่าเริ่มต้น) -->
+                    <div id="rangeContainer">
+                      <div class="centered-date-form horizontal" style="justify-content: center;">
+                        <div class="centered-date-group">
+                          <label for="dailyStartDate">จากวันที่:</label>
+                          <input type="date" id="dailyStartDate">
+                        </div>
+                        <div class="centered-date-group">
+                          <label for="dailyEndDate">ถึงวันที่:</label>
+                          <input type="date" id="dailyEndDate">
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 🔹 ส่วนใส่จำนวนวัน (ซ่อนไว้ก่อน) -->
+                    <div id="lastXContainer" style="display:none; margin-top:10px;">
+                      <label>จำนวนวัน:</label>
+                      <input type="number" id="lastXDays" min="1" placeholder="เช่น 7" style="width: 80px; padding: 5px;">
+                      <button onclick="calculateLastXRange()" style="margin-left:10px; background-color:#28a745; padding: 5px 10px;">
+                        คำนวณช่วงวันที่
+                      </button>
+                      <div id="lastXPreview" style="margin-top:10px; font-weight:bold;"></div>
+                    </div>
+
+                    <div class="button-container" style="margin-top: 15px;">
+                      <button onclick="showDailySummaryByRange()" style="background-color: #4a90e2;">📊 แสดงสรุปตามช่วงที่เลือก</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+        
+    <div id="detailsSection" style="display: none; margin-top: 20px; width: 100%; overflow-x: auto;">
+        <table id="recordTable" style="min-width: 900px;">
+          <thead>
+            <tr style="background-color: #f2f2f2;">
+              <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">📅 วันเดือนปี</th>
+              <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">⏰ เวลา</th>
+              <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">📊 ประเภท</th>
+              <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">📄 รายละเอียด</th>
+              <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">💰 จำนวนเงิน</th>
+              <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">🔧 การจัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="recordBody" style="font-size: 14px;"></tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        padding: 10px 0;
+        background-color: #FAFAD2; 
+    }
+    
+    .export-area {
+        background: #ffffff;
+        padding: 15px;
+        border-radius: 10px;
+    }
+</style>
+
+<footer>
+    &copy; 060369 acnongcake. All Rights Reserved.
+</footer>
+
+<div id="changePasswordModal" class="modal-overlay">
+  <div class="format-modal-content" style="max-width: 400px; width: 90%;">
+    <h3 style="margin-top: 0;">🔑 เปลี่ยนรหัสผ่าน</h3>
+    <p style="font-size: 14px; color: #666; margin-bottom: 20px;">
+      เพื่อความปลอดภัย กรุณายืนยันรหัสผ่านเดิมก่อนตั้งรหัสใหม่
+    </p>
+    
+    <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
+      
+      <div style="text-align: left;">
+        <label for="oldFirebasePassword" style="display: block; margin-bottom: 5px;">รหัสผ่านเดิม:</label>
+        <div style="position: relative;">
+            <input type="password" id="oldFirebasePassword" placeholder="กรอกรหัสปัจจุบัน" style="width: 100%; padding: 12px; padding-right: 40px; border: 1px solid #ccc; border-radius: 8px;">
+            <span onclick="toggleInputPassword('oldFirebasePassword')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 18px;">👁️</span>
+        </div>
+      </div>
+
+      <div style="text-align: left;">
+        <label for="newFirebasePassword" style="display: block; margin-bottom: 5px;">ตั้งรหัสผ่านใหม่:</label>
+        <div style="position: relative;">
+            <input type="password" id="newFirebasePassword" placeholder="รหัสใหม่ (ขั้นต่ำ 6 ตัว)" style="width: 100%; padding: 12px; padding-right: 40px; border: 1px solid #ccc; border-radius: 8px;">
+            <span onclick="toggleInputPassword('newFirebasePassword')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 18px;">👁️</span>
+        </div>
+      </div>
+
+      <div style="text-align: left;">
+        <label for="confirmFirebasePassword" style="display: block; margin-bottom: 5px;">ยืนยันรหัสผ่านใหม่:</label>
+        <div style="position: relative;">
+            <input type="password" id="confirmFirebasePassword" placeholder="พิมพ์อีกครั้ง" style="width: 100%; padding: 12px; padding-right: 40px; border: 1px solid #ccc; border-radius: 8px;">
+            <span onclick="toggleInputPassword('confirmFirebasePassword')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 18px;">👁️</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="format-modal-buttons">
+      <button onclick="handleChangePassword()" style="background-color: #28a745; width: 100%;">💾 ยืนยันการเปลี่ยน</button>
+      <button onclick="closeChangePasswordModal()" class="btn-cancel" style="width: 100%;">❌ ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div id="summaryModal" class="modal-overlay">
+  <div class="modal-content-container">
+    <div id="modalBodyContent" class="summaryResult">
+      </div>
+<div class="summary-action-buttons">
+  <button id="saveSummaryAsImageBtn">💾 บันทึกรูป</button>
+  <button id="shareSummaryImageBtn">📤 แชร์รูป</button>
+</div>
+      <div class="control-group">
+        <label for="summaryFontSizeSlider">📏 ปรับขนาดตัวอักษร:</label>
+        <input type="range" id="summaryFontSizeSlider" min="0.5" max="1.5" step="0.05" value="1.0">
+        <span id="summaryFontSizeValue">ขนาด: 100%</span>
+      </div>
+      <div class="control-group">
+        <label for="summaryLineHeightSlider">📏 ปรับขนาดของบรรทัด:</label>
+        <input type="range" id="summaryLineHeightSlider" min="0.01" max="3" step="0.01" value="1.0">
+        <span id="summaryLineHeightValue">ความสูงของบรรทัด: 1.0</span>
+      </div>
+      <button onclick="closeSummaryModal()" class="modal-close-btn">❌ ปิดหน้าต่างนี้</button>
+    </div>
+  </div>
+</div>
+
+<div id="exportSingleAccountModal" class="modal-overlay">
+  <div class="format-modal-content">
+    <h3>📁 เลือกรูปแบบไฟล์สำหรับบัญชีที่เลือก</h3>
+    <div class="format-modal-buttons">
+      <button class="btn-json" onclick="handleExportSelectedAs('json')">📄 JSON (.json)</button>
+      <button class="btn-csv" onclick="handleExportSelectedAs('csv')">📊 CSV (.csv)</button>
+      <button class="btn-cancel" onclick="closeExportSingleAccountModal()">❌ ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div id="summaryOutputModal" class="modal-overlay">
+  <div class="format-modal-content">
+    <h3>📊 เลือกรูปแบบการแสดงผลสรุป</h3>
+    <div class="format-modal-buttons">
+      <button class="btn-display" onclick="handleSummaryOutput('display')">📺 แสดงบนจอ</button>
+      <button class="btn-xlsx" onclick="handleSummaryOutput('xlsx')">📊 บันทึกเป็น XLSX</button>
+      <button class="btn-pdf" onclick="handleSummaryOutput('pdf')">📄 บันทึกเป็น PDF</button>
+      <button class="btn-cancel" onclick="closeSummaryOutputModal()">❌ ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div id="exportOptionsModal" class="modal-overlay">
+  <div class="format-modal-content">
+    <h3>💾 เลือกประเภทการบันทึกข้อมูล</h3>
+    <div class="format-modal-buttons">
+      <button onclick="saveToFile()" style="background-color: #0d47a1;">💾 บันทึกข้อมูลทั้งหมด (ทุกบัญชี)</button>
+      <button onclick="exportSelectedAccount()" style="background-color: #ff9800;">💾 บันทึกบัญชีที่เลือก (ทั้งหมด)</button>
+      <button onclick="initiateSingleDateExport()" style="background-color: #009688;">📅 บันทึกเฉพาะวันที่เลือก (บัญชีนี้)</button>
+      <button onclick="initiateDateRangeExport()" style="background-color: #8e44ad;">📆 บันทึกตามช่วงวันที่ (บัญชีนี้)</button>
+      <button class="btn-cancel" onclick="closeExportOptionsModal()">❌ ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div id="dateRangeExportModal" class="modal-overlay">
+  <div class="format-modal-content">
+    <h3>📆 เลือกช่วงวันที่ที่ต้องการบันทึก</h3>
+    <p>ข้อมูลจากบัญชี: <strong id="dateRangeAccountName"></strong></p>
+    <div class="entry-form" style="margin-bottom: 20px;">
+      <div class="entry-group">
+        <label for="exportStartDate">จากวันที่:</label>
+        <input type="date" id="exportStartDate">
+      </div>
+      <div class="entry-group">
+        <label for="exportEndDate">ถึงวันที่:</label>
+        <input type="date" id="exportEndDate">
+      </div>
+    </div>
+    <div class="format-modal-buttons">
+      <button class="btn-display" onclick="processDateRangeExport()">💾 บันทึกเป็น JSON</button>
+      <button class="btn-cancel" onclick="closeDateRangeExportModal()">❌ ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div id="singleDateExportModal" class="modal-overlay">
+  <div class="format-modal-content">
+    <h3>📅 เลือกวันที่ต้องการบันทึก</h3>
+    <p>ข้อมูลจากบัญชี: <strong id="singleDateAccountName"></strong></p>
+    <div class="entry-form" style="margin-bottom: 20px;">
+      <div class="entry-group">
+        <label for="exportSingleDate">เลือกวันที่:</label>
+        <input type="date" id="exportSingleDate">
+      </div>
+    </div>
+    <div class="format-modal-buttons">
+      <button class="btn-display" onclick="processSingleDateExport()">➡️ ดำเนินการต่อ</button>
+      <button class="btn-cancel" onclick="closeSingleDateExportModal()">❌ ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div id="formatSelectionModal" class="modal-overlay">
+  <div class="format-modal-content">
+    <h3>📁 เลือกรูปแบบไฟล์สำหรับบันทึกทั้งหมด</h3>
+    <div class="format-modal-buttons">
+      <button class="btn-json" onclick="handleSaveAs('json')">📄 JSON (.json)</button>
+      <button class="btn-csv" onclick="handleSaveAs('csv')">📊 CSV (.csv)</button>
+      <button class="btn-cancel" onclick="closeFormatModal()">❌ ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div id="singleDateExportFormatModal" class="modal-overlay">
+  <div class="format-modal-content">
+    <h3>📁 เลือกรูปแบบไฟล์ที่จะบันทึก</h3>
+    <div class="format-modal-buttons">
+      <button class="btn-json" onclick="handleSingleDateExportAs('json')">📄 JSON (.json)</button>
+      <button class="btn-csv" onclick="handleSingleDateExportAs('csv')">📊 CSV (.csv)</button>
+      <button class="btn-xlsx" onclick="handleSingleDateExportAs('xlsx')">📊 XLSX (.xlsx)</button>
+      <button class="btn-cancel" onclick="closeSingleDateExportFormatModal()">❌ ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast-notification"></div>
+<div id="print-container"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // ✅✅✅ ตั้งค่า Firebase ใหม่ (ac-juck)
+  // ใช้รูปแบบ Compat เพื่อให้ทำงานร่วมกับ script.js เดิมได้โดยไม่ต้องแก้โค้ด JS
+const firebaseConfig = {
+  apiKey: "AIzaSyA8pd4c5OKtdMRFG1kGQ5R5tuXaZsBswNE",
+  authDomain: "acnongcake.firebaseapp.com",
+  databaseURL: "https://acnongcake-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "acnongcake",
+  storageBucket: "acnongcake.firebasestorage.app",
+  messagingSenderId: "393916742656",
+  appId: "1:393916742656:web:c78584dfd3dca5e1c06ce5"
+};
+
+  // เริ่มต้น Firebase App เพียงครั้งเดียว
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+    console.log("Firebase Initialized (Project: ac-juck).");
+  }
+
+  const db = firebase.firestore();
+  
+  // ✅ บังคับใช้ Long Polling เพื่อความเสถียร
+  db.settings({
+    experimentalForceLongPolling: true
+  });
+
+  window.db = db; // ยืนยันการผูกกับ window object
+</script>
+
+<script src="script.js"></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      // ใช้ service-worker.js โดยตรง
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(function(registration) {
+          console.log('Service Worker ลงทะเบียนสำเร็จ Scope:', registration.scope);
+          
+          // ตรวจสอบการอัปเดต
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            console.log('พบ Service Worker ใหม่กำลังติดตั้ง');
+            
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                console.log('พร้อมใช้งาน Service Worker ใหม่ - กรุณารีเฟรชหน้าจอ');
+              }
+            });
+          });
+        })
+        .catch(function(error) {
+          console.log('การลงทะเบียน Service Worker ล้มเหลว:', error);
+        });
+
+      // ตรวจสอบเมื่อ controller เปลี่ยนแปลง
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('Service Worker controller เปลี่ยนแปลงแล้ว');
+      });
+    });
+  }
+
+  // ตรวจจับเมื่อแอปถูกติดตั้ง
+  window.addEventListener('appinstalled', (evt) => {
+    console.log('แอปพลิเคชันถูกติดตั้งแล้ว');
+    const installGuide = document.getElementById('install-guide');
+    if (installGuide) {
+      installGuide.style.display = 'none';
+    }
+    localStorage.setItem('pwa_installed', 'true');
+  });
+
+  // ตรวจสอบสถานะ PWA
+  if (window.matchMedia('(display-mode: standalone)').matches || 
+      window.navigator.standalone === true || 
+      localStorage.getItem('pwa_installed') === 'true') {
+    const installGuide = document.getElementById('install-guide');
+    if (installGuide) {
+      installGuide.style.display = 'none';
+    }
+  }
+</script>
+
+<!-- เพิ่มฟังก์ชัน toggleGeneralSummaryMode และ calculateGeneralLastXRange ให้สมบูรณ์ -->
+<script>
+  // ฟังก์ชันสลับโหมดสำหรับการสรุปแบบกำหนดเอง
+  function toggleGeneralSummaryMode() {
+    const mode = document.querySelector('input[name="summaryMode"]:checked').value;
+    const rangeContainer = document.getElementById('generalRangeContainer');
+    const lastXContainer = document.getElementById('generalLastXContainer');
+    const previewContainer = document.getElementById('generalLastXPreview');
+    
+    if (mode === 'lastX') {
+        if(rangeContainer) rangeContainer.style.display = 'none';
+        if(lastXContainer) lastXContainer.style.display = 'block';
+    } else {
+        if(rangeContainer) rangeContainer.style.display = 'block';
+        if(lastXContainer) lastXContainer.style.display = 'none';
+    }
+    
+    // เคลียร์ข้อความพรีวิวทุกครั้งที่สลับโหมด
+    if(previewContainer) previewContainer.innerHTML = '';
+  }
+
+  /**
+   * คำนวณช่วงวันที่สำหรับ X วันล่าสุด (โหมดสรุปวันที่ถึงวันที่)
+   */
+  function calculateGeneralLastXRange() {
+    const daysInput = document.getElementById('summaryLastXDays').value;
+    const days = parseInt(daysInput);
+    
+    if (!days || days <= 0) {
+        showToast('⚠️ กรุณาระบุจำนวนวันที่ต้องการย้อนหลังให้ถูกต้อง', 'error');
+        return;
+    }
+    
+    // คำนวณวันที่ย้อนหลัง (นับจากวันนี้)
+    const today = new Date();
+    const start = new Date(today);
+    start.setDate(today.getDate() - days + 1);
+    
+    // แปลงรูปแบบเป็น YYYY-MM-DD เพื่อยัดลง input type="date"
+    const endStr = today.toISOString().split('T')[0];
+    const startStr = start.toISOString().split('T')[0];
+    
+    // เซ็ตค่าลงในช่อง Input แบบเงียบๆ เพื่อให้ฟังก์ชัน summarize() ดึงไปใช้ต่อได้ทันที
+    document.getElementById('startDate').value = startStr;
+    document.getElementById('endDate').value = endStr;
+    
+    // แปลงเป็นวันที่แบบไทยเพื่อแสดงผล Preview ให้สวยงาม
+    const thaiStart = new Date(startStr).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+    const thaiEnd = new Date(endStr).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+    
+    // แสดงพรีวิว
+    document.getElementById('generalLastXPreview').innerHTML = `ช่วงวันที่: ${thaiStart} ถึง ${thaiEnd}`;
+    
+    showToast('✅ คำนวณช่วงวันที่เรียบร้อย', 'success');
+  }
+
+  // (หมายเหตุ: ฟังก์ชัน toggleDailyMode และ calculateLastXRange สำหรับส่วนสรุปแต่ละวัน 
+  // จะต้องอยู่ใน script.js อยู่แล้ว หากไม่มี ให้เพิ่มใน script.js ตามที่เคยแนะนำ)
+</script>
+
+</body>
+</html>

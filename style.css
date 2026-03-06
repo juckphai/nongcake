@@ -1,0 +1,1618 @@
+/* ===== RESET & BASE STYLES ===== */
+*, *::before, *::after { 
+    box-sizing: border-box; 
+}
+
+body { 
+    font-family: Arial, sans-serif; 
+    background-color: #f4f7fb; 
+    margin: 0; 
+    padding: 0; 
+    -webkit-text-size-adjust: 100%; 
+    -ms-text-size-adjust: 100%; 
+    text-size-adjust: 100%; 
+    font-size: clamp(16px, 2.5vw, 20px); /* ปรับค่าสูงสุดเป็น 20px */
+}
+
+h2 { 
+    text-align: center; 
+    color: #333; 
+    margin-top: clamp(20px, 5vw, 35px); 
+    font-size: clamp(24px, 6vw, 32px); /* ปรับค่าสูงสุดเป็น 32px */
+}
+
+/* ===== LAYOUT & CONTAINERS ===== */
+.container { 
+    max-width: clamp(300px, 98vw, 900px); /* ปรับค่าสูงสุดเป็น 900px */
+    margin: clamp(10px, 3vw, 25px) auto; 
+    background-color: #FAFAD2; 
+    border: clamp(1px, 0.3vw, 3px) solid #ED01ED; 
+    padding: clamp(5px, 2vw, 15px); 
+    border-radius: clamp(5px, 2vw, 12px); 
+    box-shadow: 0 clamp(2px, 1vw, 6px) clamp(4px, 2vw, 10px) rgba(0, 0, 0, 0.1); 
+    width: 98%; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===== CENTERED LAYOUT STYLES ===== */
+.main-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: clamp(280px, 98vw, 900px); /* ปรับค่าสูงสุดเป็น 700px */
+}
+
+/* ===== SECTION HEADERS ===== */
+.section-header { 
+    background-color: #4CAF50; 
+    color: white; 
+    padding: clamp(8px, 2vw, 15px) clamp(10px, 3vw, 18px); 
+    border-radius: clamp(2px, 0.5vw, 6px); 
+    margin-bottom: clamp(5px, 2vw, 12px); 
+    cursor: pointer; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    transition: all 0.3s ease; 
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    font-size: clamp(16px, 3vw, 22px); /* ปรับค่าสูงสุดเป็น 22px */
+}
+
+.section-header:hover { 
+    background-color: #45a049; 
+}
+
+.section-header .arrow { 
+    transition: transform 0.3s; 
+    font-size: clamp(14px, 2.5vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+}
+
+.section-header.active .arrow { 
+    transform: rotate(90deg); 
+}
+
+.section-header > span:first-child { 
+    flex: 1; 
+    text-align: center; 
+}
+
+/* Section Header Variants */
+.header-account, .header-add-data, .header-actions, .header-summary { 
+    border: clamp(1px, 0.3vw, 3px) solid #E97132; 
+}
+
+.header-account { 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.header-account:hover { 
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.header-add-data { 
+    background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+}
+
+.header-add-data:hover { 
+    background: linear-gradient(135deg, #43A047 0%, #1B5E20 100%);
+}
+
+.header-actions { 
+    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+}
+
+.header-actions:hover { 
+    background: linear-gradient(135deg, #FB8C00 0%, #EF6C00 100%);
+}
+
+.header-summary { 
+    background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+}
+
+.header-summary:hover { 
+    background: linear-gradient(135deg, #8E24AA 0%, #6A1B9A 100%);
+}
+
+.header-import {
+    background-color: #a7dca5;
+    border-radius: clamp(8px, 3vw, 18px);
+    padding-top: clamp(6px, 1.5vw, 10px);
+    padding-bottom: clamp(6px, 1.5vw, 10px);
+}
+
+.header-import:hover {
+    background-color: #96c494;
+}
+
+/* ===== SECTION CONTENT ===== */
+.section-content { 
+    display: none; 
+    padding: clamp(10px, 3vw, 18px); 
+    border: clamp(1px, 0.3vw, 3px) solid #ddd; 
+    border-radius: clamp(10px, 4vw, 25px); 
+    background-color: #f9f9f9; 
+    margin-bottom: clamp(10px, 3vw, 18px); 
+    transition: all 0.3s ease; 
+    width: 100%;
+}
+
+.section-content.active { 
+    display: block; 
+    animation: fadeIn 0.3s ease; 
+}
+
+/* ===== MAIN SECTION STYLES ===== */
+.main-section-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: clamp(10px, 3vw, 18px);
+    margin: clamp(5px, 2vw, 12px) 0;
+    border-radius: clamp(5px, 2vw, 12px);
+    cursor: pointer;
+    font-weight: bold;
+    font-size: clamp(16px, 3.5vw, 24px); /* ปรับค่าสูงสุดเป็น 24px */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 clamp(2px, 1vw, 5px) clamp(3px, 1.5vw, 8px) rgba(0,0,0,0.1);
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+}
+
+.main-section-header:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 clamp(3px, 1.5vw, 8px) clamp(4px, 2vw, 10px) rgba(0,0,0,0.15);
+}
+
+.main-section-header.active {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.main-section-header.active .arrow {
+    transform: rotate(90deg);
+}
+
+.main-section-content {
+    display: none;
+    padding: clamp(10px, 3vw, 18px);
+    background: #f8f9fa;
+    border-radius: clamp(5px, 2vw, 10px);
+    margin-bottom: clamp(10px, 3vw, 18px);
+    border-left: clamp(2px, 1vw, 5px) solid #667eea;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.main-section-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* ===== SUB-SECTION STYLES ===== */
+.sub-section-header {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    color: #333;
+    padding: clamp(8px, 2.5vw, 15px);
+    margin: clamp(4px, 1.5vw, 10px) 0;
+    border-radius: clamp(4px, 1.5vw, 10px);
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    border-left: clamp(2px, 1vw, 5px) solid #667eea;
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    font-size: clamp(14px, 2.8vw, 20px); /* ปรับค่าสูงสุดเป็น 20px */
+}
+
+.sub-section-header:hover {
+    background: linear-gradient(135deg, #fed6e3 0%, #a8edea 100%);
+    transform: translateX(clamp(3px, 1vw, 6px));
+}
+
+.sub-section-header.active {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.sub-section-header.active .arrow {
+    transform: rotate(90deg);
+}
+
+.sub-section-content { 
+    display: none;
+    padding: clamp(8px, 2vw, 12px);
+    background: white;
+    border-radius: clamp(3px, 1.5vw, 8px);
+    margin: clamp(3px, 1vw, 6px) 0 clamp(10px, 3vw, 18px) 0;
+    border: clamp(1px, 0.3vw, 3px) solid #e9ecef;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.sub-section-content.active {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+.sub-section-header > span:first-child {
+    flex: 1;
+    text-align: center;
+}
+
+/* ===== FORM STYLES ===== */
+.entry-form { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(clamp(150px, 40vw, 250px), 1fr)); /* ปรับค่าสูงสุดเป็น 250px */
+    gap: clamp(8px, 3vw, 18px); 
+    margin-bottom: clamp(10px, 3vw, 18px); 
+    width: 100%;
+    justify-content: center;
+}
+
+.entry-group { 
+    display: flex; 
+    flex-direction: column; 
+    gap: clamp(3px, 1vw, 6px); 
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
+.entry-group label {
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: clamp(3px, 1vw, 6px);
+    font-size: clamp(14px, 2.5vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+}
+
+.entry-group input,
+.entry-group select {
+    width: 100%;
+    padding: clamp(6px, 2vw, 12px);
+    font-size: clamp(14px, 3vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+    border: clamp(1px, 0.3vw, 3px) solid #ccc;
+    border-radius: clamp(3px, 1vw, 6px);
+    background-color: #f9f9f9;
+    text-align: center;
+}
+
+label { 
+    font-weight: bold; 
+    color: #333; 
+    font-size: clamp(14px, 2.5vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+    margin-bottom: clamp(3px, 1vw, 6px); 
+    text-align: center; 
+}
+
+select, input[type="text"], input[type="number"], input[type="date"], input[type="time"], input[type="password"] { 
+    width: 100%; 
+    padding: clamp(6px, 2vw, 12px); 
+    font-size: clamp(14px, 3vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+    border: clamp(1px, 0.3vw, 3px) solid #ccc; 
+    border-radius: clamp(3px, 1vw, 6px); 
+    background-color: #f9f9f9; 
+    text-align: center; 
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+
+input[type=number] { 
+    -moz-appearance: textfield; 
+}
+
+.checkbox-container { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(clamp(120px, 30vw, 180px), 1fr)); /* ปรับค่าสูงสุดเป็น 180px */
+    gap: clamp(6px, 2vw, 12px); 
+    background-color: #e9ecef; 
+    padding: clamp(6px, 2vw, 12px); 
+    border-radius: clamp(3px, 1vw, 6px); 
+    border: clamp(1px, 0.3vw, 3px) solid #ced4da; 
+}
+
+.checkbox-item { 
+    display: flex; 
+    align-items: center; 
+    gap: clamp(3px, 1vw, 6px); 
+    justify-content: center; 
+    font-size: clamp(13px, 2.2vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+}
+
+.checkbox-item input { 
+    width: auto; 
+    transform: scale(clamp(0.8, 2vw, 1.1));
+}
+
+/* ===== TWO-COLUMN LAYOUT FOR AMOUNT AND TYPE ===== */
+.amount-type-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(8px, 3vw, 18px);
+    width: 100%;
+}
+
+.amount-group,
+.type-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
+/* ===== DATE-TIME GROUP STYLES ===== */
+.date-time-group {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+}
+
+/* ===== BUTTON STYLES ===== */
+.button-group, .button-container { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(clamp(120px, 30vw, 180px), 1fr)); /* ปรับค่าสูงสุดเป็น 180px */
+    gap: clamp(6px, 2vw, 12px); 
+    margin: clamp(8px, 2vw, 12px) 0; 
+    width: 100%;
+    justify-items: center;
+}
+
+.button-group button, .button-container button { 
+    padding: clamp(6px, 2vw, 10px); 
+    font-size: clamp(14px, 3vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+    border: none; 
+    border-radius: clamp(8px, 3vw, 18px); 
+    background-color: #4caf50; 
+    color: white; 
+    cursor: pointer; 
+    transition: background-color 0.3s ease, transform 0.2s ease; 
+    min-height: clamp(35px, 8vw, 50px); /* ปรับค่าสูงสุดเป็น 50px */
+}
+
+.button-group button:hover, .button-container button:hover { 
+    background-color: #45a049; 
+    transform: translateY(-2px); 
+}
+
+.back-button, .file-button { 
+    font-size: clamp(14px, 3vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+    padding: clamp(8px, 2.5vw, 15px) clamp(15px, 4vw, 25px); 
+    border-radius: clamp(10px, 4vw, 25px); 
+    border: none; 
+    color: white; 
+    cursor: pointer; 
+    transition: background-color 0.3s, transform 0.2s; 
+    margin: clamp(8px, 2vw, 12px) auto; 
+    display: block; 
+    width: clamp(200px, 70vw, 600px); /* ปรับค่าสูงสุดเป็น 350px */
+    max-width: 600px; 
+    min-height: clamp(40px, 9vw, 55px); /* ปรับค่าสูงสุดเป็น 55px */
+}
+
+.back-button { 
+    background-color: #E97132; 
+}
+
+.back-button:hover { 
+    background-color: #e64a19; 
+}
+
+.file-button { 
+    background-color: #007bff; 
+}
+
+.file-button:hover { 
+    background-color: #0056b3; 
+}
+
+.file-actions { 
+    display: flex; 
+    gap: clamp(6px, 2vw, 12px); 
+    align-items: center; 
+    justify-content: center;
+    width: 100%;
+}
+
+.action-button { 
+    padding: clamp(8px, 2.5vw, 12px) clamp(15px, 4vw, 25px); 
+    height: clamp(35px, 8vw, 45px); 
+    min-width: clamp(120px, 30vw, 180px); /* ปรับค่าสูงสุดเป็น 180px */
+    border: none; 
+    border-radius: clamp(10px, 4vw, 25px); 
+    color: white; 
+    cursor: pointer; 
+    font-size: clamp(13px, 2.5vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+.file-button-wrapper button { 
+    background-color: #007bff; 
+}
+
+.excel-button { 
+    background-color: #28a745; 
+}
+
+/* ===== TABLE STYLES ===== */
+#recordTable { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin: clamp(8px, 2vw, 12px) auto; 
+    font-size: clamp(12px, 2.2vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+}
+
+#recordTable th, #recordTable td { 
+    border: clamp(1px, 0.3vw, 3px) solid #ccc; 
+    padding: clamp(4px, 1.5vw, 10px); 
+    line-height: 0.8; 
+    text-align: center; 
+    word-break: break-word; 
+}
+
+#recordTable th { 
+    background-color: #f4f4f4; 
+    font-size: clamp(13px, 2.5vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+    padding: clamp(6px, 1.8vw, 12px) clamp(4px, 1.5vw, 10px);
+}
+
+#recordTable tr:nth-child(even) { 
+    background-color: #f9f9f9; 
+}
+
+#recordTable tr:hover { 
+    background-color: #f1f1f1; 
+}
+
+/* ===== SUMMARY STYLES ===== */
+.summaryResult { 
+    font-size: clamp(12px, 2.2vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+    font-weight: normal; 
+    color: blue; 
+    background-color: #FAFAD2;
+    border: clamp(1px, 0.3vw, 3px) solid #00B050; 
+    border-radius: clamp(3px, 1vw, 6px); 
+    padding: clamp(6px, 2vw, 12px) clamp(3px, 1vw, 6px);
+    width: 100%; 
+    margin: 0; 
+    text-align: center; 
+    box-shadow: 0 clamp(2px, 1vw, 5px) clamp(6px, 3vw, 15px) rgba(0,0,0,0.25); 
+    line-height: 1.0; 
+}
+
+.summaryResult table td, .summaryResult table th { 
+    line-height: 0.8; 
+    padding: clamp(3px, 1vw, 8px);
+}
+
+.summary-subsection { 
+    border-top: clamp(1px, 0.3vw, 3px) solid #ccc; 
+    margin-top: clamp(10px, 3vw, 18px); 
+    padding-top: clamp(10px, 3vw, 18px); 
+}
+
+.summary-subsection:first-child { 
+    border-top: none; 
+    margin-top: 0; 
+    padding-top: 0; 
+}
+
+.summary-subsection-header { 
+    display: block; 
+    margin-bottom: clamp(8px, 2vw, 12px); 
+    font-weight: bold; 
+    font-size: clamp(16px, 3vw, 22px); /* ปรับค่าสูงสุดเป็น 22px */
+    color: #0056b3; 
+}
+
+/* ===== MODAL & POPUP STYLES ===== */
+.modal-overlay { 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0,0,0,0.6);
+    display: none; 
+    justify-content: center; 
+    align-items: center; 
+    padding: 0px;
+    overflow-y: auto; 
+}
+
+.modal-content-container { 
+    background-color: #FAFAD2; 
+    padding: clamp(8px, 2vw, 12px); 
+    border-radius: 0px; 
+    box-shadow: none;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    margin: auto 0; 
+    width: 100%; 
+    max-width: clamp(280px, 98vw, 900px); /* ปรับค่าสูงสุดเป็น 900px */
+}
+
+.modal-close-btn { 
+    background-color: #E97132; 
+    color: white; 
+    padding: clamp(8px, 2.5vw, 15px) clamp(20px, 6vw, 35px); 
+    border: none; 
+    cursor: pointer; 
+    border-radius: clamp(10px, 4vw, 25px); 
+    font-size: clamp(14px, 3vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+    margin-top: clamp(8px, 2vw, 12px); 
+    transition: background-color 0.3s; 
+    width: clamp(200px, 98vw, 300px); /* ปรับค่าสูงสุดเป็น 300px */
+    max-width: 300px; 
+}
+
+.modal-close-btn:hover { 
+    background-color: #e64a19; 
+}
+
+.modal-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: clamp(8px, 2vw, 12px);
+    max-width: clamp(250px, 98vw, 900px); /* ปรับค่าสูงสุดเป็น 700px */
+    background-color: #f0f0f0;
+    padding: clamp(8px, 2vw, 12px);
+    border-radius: 0px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: clamp(10px, 3vw, 18px);
+}
+
+.control-group label, .control-group span {
+    font-size: clamp(14px, 2.5vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+    color: #333;
+    margin-bottom: clamp(6px, 1.5vw, 10px);
+}
+
+.control-group input[type="range"] {
+    width: clamp(200px, 98vw, 600px); /* ปรับค่าสูงสุดเป็น 350px */
+    max-width: 600px;
+    margin: 0;
+}
+
+.format-modal-content {
+    background-color: #fff;
+    padding: clamp(15px, 4vw, 25px) clamp(20px, 5vw, 35px);
+    border-radius: 0px;
+    text-align: center;
+    box-shadow: none;
+    width: 100%;
+    max-width: clamp(250px, 98vw, 900px); /* ปรับค่าสูงสุดเป็น 700px */
+}
+
+.format-modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 3vw, 18px);
+    margin-top: clamp(15px, 4vw, 25px);
+}
+
+.format-modal-buttons button {
+    padding: clamp(12px, 3vw, 18px);
+    font-size: clamp(14px, 3vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+    border: none;
+    border-radius: clamp(5px, 2vw, 12px);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    min-height: clamp(45px, 10vw, 60px); /* ปรับค่าสูงสุดเป็น 60px */
+}
+
+.format-modal-buttons .btn-json { 
+    background-color: #9C27B0; 
+}
+
+.format-modal-buttons .btn-json:hover { 
+    background-color: #7B1FA2; 
+}
+
+.format-modal-buttons .btn-csv { 
+    background-color: #2E7D32; 
+}
+
+.format-modal-buttons .btn-csv:hover { 
+    background-color: #1B5E20; 
+}
+
+.format-modal-buttons .btn-pdf { 
+    background-color: #e64a19; 
+}
+
+.format-modal-buttons .btn-cancel { 
+    background-color: #6c757d; 
+    margin-top: clamp(8px, 2vw, 12px);
+}
+
+.format-modal-buttons .btn-cancel:hover { 
+    background-color: #5a6268; 
+}
+
+.format-modal-buttons .btn-display { 
+    background-color: #007bff; 
+}
+
+.format-modal-buttons .btn-display:hover { 
+    background-color: #0056b3; 
+}
+
+.format-modal-buttons .btn-xlsx { 
+    background-color: #107C41; 
+}
+
+.format-modal-buttons .btn-xlsx:hover { 
+    background-color: #0E6A37; 
+}
+
+/* ===== TOAST NOTIFICATION ===== */
+.toast-notification { 
+    position: fixed; 
+    bottom: clamp(10px, 3vw, 25px); 
+    right: clamp(10px, 3vw, 25px); 
+    padding: clamp(8px, 2.5vw, 15px) clamp(15px, 4vw, 30px); 
+    color: white; 
+    border-radius: clamp(15px, 6vw, 35px); 
+    box-shadow: 0 clamp(2px, 1vw, 5px) clamp(8px, 3vw, 18px) rgba(0,0,0,0.3); 
+    z-index: 1001; 
+    opacity: 0; 
+    visibility: hidden; 
+    transition: opacity 0.5s, visibility 0.5s, transform 0.5s; 
+    transform: translateY(20px); 
+    font-weight: bold;
+    font-size: clamp(13px, 2.5vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+    text-align: center;
+    min-width: clamp(200px, 60vw, 300px); /* ปรับค่าสูงสุดเป็น 300px */
+    max-width: clamp(250px, 80vw, 450px); /* ปรับค่าสูงสุดเป็น 450px */
+    word-wrap: break-word;
+}
+
+.toast-notification.show { 
+    opacity: 1; 
+    visibility: visible; 
+    transform: translateY(0); 
+}
+
+/* ===== INSTALL PROMPT ===== */
+.install-prompt { 
+    background-color: #fff3cd; 
+    color: #856404; 
+    border: clamp(1px, 0.3vw, 3px) solid #ffeeba; 
+    border-radius: clamp(5px, 2vw, 12px); 
+    padding: clamp(10px, 3vw, 18px); 
+    margin: clamp(10px, 3vw, 18px) clamp(8px, 2vw, 12px); 
+    text-align: left; 
+    font-size: clamp(13px, 2.5vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+    position: relative; 
+}
+
+.install-prompt h4 { 
+    margin-top: 0; 
+    font-size: clamp(14px, 3vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+}
+
+.install-prompt ul { 
+    padding-left: clamp(15px, 4vw, 25px); 
+    margin-bottom: 0; 
+}
+
+.install-prompt .close-prompt { 
+    position: absolute; 
+    top: clamp(8px, 2vw, 12px); 
+    right: clamp(10px, 3vw, 18px); 
+    font-size: clamp(18px, 4vw, 24px); /* ปรับค่าสูงสุดเป็น 24px */
+    font-weight: bold; 
+    cursor: pointer; 
+    color: #856404; 
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(-10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes slideDown {
+    from { 
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== PRINT STYLES ===== */
+@media screen {
+    #print-container {
+        display: none;
+    }
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #print-container, #print-container * {
+        visibility: visible;
+    }
+    #print-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0 5mm;
+    }
+    
+    @page {
+        size: A4;
+        margin: 10mm 5mm 3mm 10mm;
+        @top-center {
+            content: "หน้า " counter(page);
+            font-family: Arial, sans-serif;
+            font-size: 9pt;
+            color: #888;
+            margin-top: 5mm;
+        }
+    }
+    
+    body {
+        background: #fff !important;
+        font-size: 10pt;
+        margin: 0;
+        width: 100%;
+    }
+    
+    #print-container .summaryResult {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        background-color: #fff !important;
+        text-align: center;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-top: 10mm;
+    }
+    
+    #print-container .summaryResult p[style*="margin-left"] {
+        text-align: left;
+        display: inline-block;
+    }
+    
+    #print-container h2, #print-container h3, #print-container h4 {
+        margin-bottom: 0.5em;
+    }
+    
+    #print-container p, #print-container li {
+        font-size: 9.5pt;
+        line-height: 0.8;
+    }
+    
+    #print-container table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 9pt;
+        margin-top: 0.8em;
+        page-break-inside: auto;
+    }
+    
+    #print-container thead {
+         display: table-header-group;
+    }
+    
+    #print-container tr {
+        page-break-inside: avoid;
+    }
+    
+    #print-container th, #print-container td {
+        border: 1px solid #888 !important;
+        padding: 4px 6px;
+        text-align: center;
+        line-height: 0.5; 
+    }
+    
+    #print-container th {
+        background-color: #f0f0f0 !important;
+        font-weight: bold;
+    }
+    
+    #print-container span[style*="color"] {
+        color: #000 !important;
+    }
+    
+    #print-container hr {
+         border-top: 1px solid #999;
+         margin: 1.5em 0;
+    }
+}
+
+
+/* ===== RESPONSIVE STYLES ===== */
+@media screen and (max-width: 900px) { 
+    .container { 
+        padding: clamp(3px, 1.5vw, 6px); 
+        margin: clamp(5px, 2vw, 12px) auto;
+    } 
+    
+    h2 { 
+        font-size: clamp(20px, 5vw, 28px); /* ปรับค่าสูงสุดเป็น 28px */
+    } 
+    
+    .entry-form { 
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(4px, 1.5vw, 10px);
+    } 
+    
+    .button-group, .button-container { 
+        grid-template-columns: 1fr; 
+        gap: clamp(4px, 1.5vw, 10px);
+    } 
+    
+    .sub-section-content .button-group { 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: clamp(3px, 1vw, 6px); 
+    } 
+    
+    .sub-section-content .button-group button { 
+        padding: clamp(6px, 2vw, 12px) clamp(3px, 1vw, 6px); 
+        font-size: clamp(12px, 2.5vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+    } 
+    
+    .button-group button, .button-container button { 
+        padding: clamp(10px, 3vw, 16px); 
+        font-size: clamp(14px, 3vw, 18px); /* ปรับค่าสูงสุดเป็น 18px */
+    } 
+    
+    .file-actions { 
+        flex-direction: column; 
+        padding: 0 clamp(8px, 2vw, 12px); 
+        align-items: stretch; 
+    } 
+    
+    .file-actions button { 
+        width: 100%; 
+        max-width: none; 
+    } 
+    
+    .back-button { 
+        width: 100%; 
+    }
+    
+    /* ปรับแต่งกลุ่มจำนวนเงินและประเภทสำหรับมือถือ */
+    .amount-type-group {
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(4px, 1.5vw, 10px);
+    }
+    
+    .amount-group input,
+    .type-group input {
+        width: 100%;
+    }
+    
+    .date-time-group {
+        margin-bottom: 0;
+    }
+    
+    .date-time-group label {
+        font-size: clamp(12px, 2.2vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+        margin-bottom: clamp(2px, 0.8vw, 4px);
+    }
+    
+    .date-time-group input {
+        padding: clamp(6px, 2vw, 10px);
+        font-size: clamp(12px, 2.2vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+        width: 100%;
+    }
+    
+    /* สำหรับมือถือ - เรียงแนวนอนด้วย */
+    .centered-date-form.horizontal {
+        flex-direction: row;
+        justify-content: center;
+        gap: clamp(6px, 2vw, 12px);
+    }
+    
+    .centered-date-form.horizontal .centered-date-group {
+        max-width: clamp(120px, 35vw, 180px); /* ปรับค่าสูงสุดเป็น 180px */
+        margin-bottom: 0;
+    }
+    
+    .centered-date-form.horizontal .centered-date-group label {
+        font-size: clamp(12px, 2.2vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+    }
+    
+    .centered-date-form.horizontal .centered-date-group input {
+        padding: clamp(6px, 2vw, 10px);
+        font-size: clamp(12px, 2.2vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+    }
+}
+
+/* ปรับแต่งสำหรับหน้าจอขนาดใหญ่ */
+@media screen and (min-width: 601px) {
+    .entry-form {
+        grid-template-columns: 1fr 1fr;
+        gap: clamp(8px, 3vw, 18px);
+    }
+    
+    .date-time-group,
+    .amount-group,
+    .type-group {
+        flex: 1;
+    }
+    
+    .date-time-group input,
+    .amount-group input,
+    .type-group input {
+        width: 100%;
+    }
+    
+    /* สำหรับเดสก์ท็อป - เรียงแนวนอน */
+    .centered-date-form.horizontal {
+        flex-direction: row;
+        justify-content: center;
+        gap: clamp(8px, 3vw, 18px);
+    }
+    
+    .centered-date-form.horizontal .centered-date-group {
+        max-width: clamp(150px, 40vw, 250px); /* ปรับค่าสูงสุดเป็น 250px */
+        margin-bottom: 0;
+    }
+}
+
+
+/* Responsive design for toast */
+@media (max-width: 600px) {
+    .toast-notification {
+        right: clamp(5px, 2vw, 12px);
+        left: clamp(5px, 2vw, 12px);
+        bottom: clamp(5px, 2vw, 12px);
+        max-width: none;
+        min-width: auto;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    footer {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        box-shadow: 0 clamp(2px, 1vw, 5px) clamp(6px, 3vw, 15px) rgba(0,0,0,0.25);
+    }
+    
+    footer::before {
+        background: linear-gradient(90deg, #e74c3c, #1abc9c, #3498db, #2ecc71, #f1c40f);
+    }
+}
+
+/* Enhanced section styles for better compatibility */
+.main-section-content,
+.sub-section-content {
+  display: none;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.main-section-content.active,
+.sub-section-content.active {
+  display: block;
+}
+
+.main-section-header.active .arrow,
+.sub-section-header.active .arrow {
+  transform: rotate(90deg);
+}
+
+.arrow {
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+/* Enhanced section headers for better compatibility */
+.section-header {
+  cursor: pointer;
+  padding: clamp(8px, 2vw, 12px);
+  background-color: #f5f5f5;
+  border: clamp(1px, 0.3vw, 3px) solid #ddd;
+  margin: clamp(3px, 1vw, 6px) 0;
+  border-radius: clamp(3px, 1vw, 6px);
+}
+
+.section-header:hover {
+  background-color: #e9e9e9;
+}
+
+/* Specific main menu styles */
+.header-account {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.header-account:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.header-add-data {
+    background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+}
+
+.header-add-data:hover {
+    background: linear-gradient(135deg, #43A047 0%, #1B5E20 100%);
+}
+
+.header-actions {
+    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+}
+
+.header-actions:hover {
+    background: linear-gradient(135deg, #FB8C00 0%, #EF6C00 100%);
+}
+
+.header-summary {
+    background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+}
+
+.header-summary:hover {
+    background: linear-gradient(135deg, #8E24AA 0%, #6A1B9A 100%);
+}
+
+@media print {
+    .toast-notification {
+        display: none !important;
+    }
+    
+    /* ซ่อนองค์ประกอบอื่นๆ ที่ไม่ต้องการให้พิมพ์ */
+    .modal-overlay,
+    .modal-controls,
+    .section-header,
+    .container > div:not(#print-container) {
+        display: none !important;
+    }
+    
+    /* แสดงเฉพาะเนื้อหาที่ต้องการพิมพ์ */
+    #print-container {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
+
+/* ===== ICON STYLES ===== */
+.button-icon {
+  margin-right: clamp(3px, 1vw, 8px);
+  font-size: clamp(12px, 2.2vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+}
+
+/* ปรับแต่งไอคอนในปุ่ม */
+.button-group button .button-icon,
+.button-container button .button-icon,
+.action-button .button-icon {
+  margin-right: clamp(3px, 1vw, 6px);
+  font-size: clamp(11px, 2vw, 14px); /* ปรับค่าสูงสุดเป็น 14px */
+}
+
+/* ปรับแต่งไอคอนในส่วนหัว */
+.section-header .button-icon,
+.main-section-header .button-icon,
+.sub-section-header .button-icon {
+  margin-right: clamp(3px, 1.2vw, 8px);
+  font-size: clamp(12px, 2.2vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+}
+
+/* ปรับแต่งไอคอนในตาราง */
+#recordTable th .button-icon {
+  margin-right: clamp(2px, 0.8vw, 5px);
+  font-size: clamp(11px, 2vw, 14px); /* ปรับค่าสูงสุดเป็น 14px */
+}
+
+/* ปรับแต่งไอคอนใน modal */
+.format-modal-buttons button .button-icon {
+  margin-right: clamp(3px, 1.2vw, 8px);
+  font-size: clamp(12px, 2.2vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+}
+
+/* ปรับแต่งไอคอนในปุ่มย้อนกลับและไฟล์ */
+.back-button .button-icon,
+.file-button .button-icon {
+  margin-right: clamp(3px, 1.2vw, 8px);
+  font-size: clamp(12px, 2.2vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+}
+
+/* ปรับแต่งไอคอนในปุ่ม action */
+.action-button .button-icon {
+  margin-right: clamp(2px, 1vw, 5px);
+  font-size: clamp(11px, 2vw, 14px); /* ปรับค่าสูงสุดเป็น 14px */
+}
+
+/* ปรับแต่งไอคอนในปุ่ม modal */
+.modal-close-btn .button-icon {
+  margin-right: clamp(3px, 1.2vw, 8px);
+  font-size: clamp(12px, 2.2vw, 16px); /* ปรับค่าสูงสุดเป็น 16px */
+}
+
+/* ===== ENHANCED CLAMP STYLES ===== */
+/* เพิ่ม min-height เพื่อป้องกันการตัดกันขององค์ประกอบ */
+.container > * {
+    min-height: clamp(20px, 5vw, 35px); /* ปรับค่าสูงสุดเป็น 35px */
+}
+
+/* ป้องกัน input และ button เล็กเกินไปบนมือถือ */
+input, select, button {
+    min-height: clamp(35px, 8vw, 50px); /* ปรับค่าสูงสุดเป็น 50px */
+}
+
+/* ปรับแต่ง gap และ spacing ให้เหมาะสมทุกหน้าจอ */
+.grid-layout {
+    gap: clamp(5px, 2vw, 12px);
+}
+
+.flex-layout {
+    gap: clamp(5px, 2vw, 12px);
+}
+
+/* ปรับแต่ง border-radius ให้ responsive */
+.rounded-element {
+    border-radius: clamp(3px, 1.5vw, 10px);
+}
+
+/* ปรับแต่ง shadow ให้ responsive */
+.shadow-element {
+    box-shadow: 0 clamp(1px, 0.5vw, 3px) clamp(2px, 1vw, 5px) rgba(0,0,0,0.1);
+}
+
+/* ป้องกันการแสดงผลผิดพลาดบนหน้าจอขนาดเล็กมาก */
+@media (max-width: 320px) {
+    .container {
+        width: 98%;
+        margin: clamp(3px, 1vw, 6px) auto;
+    }
+    
+    .entry-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .button-group, .button-container {
+        grid-template-columns: 1fr;
+    }
+}
+/* เพิ่มในไฟล์ style.css */
+
+/* ===== COMPACT BUTTON GROUP STYLES ===== */
+.compact-button-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+  margin: 8px 0;
+}
+
+.compact-button-group button {
+  padding: 6px 4px;
+  font-size: 12px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  word-break: break-word;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-weight: 500;
+}
+
+.compact-button-group button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+/* ปุ่มจัดการบัญชี */
+.manage-account-buttons button:nth-child(1) { 
+  background: linear-gradient(135deg, #28a745, #20c997);
+} /* เพิ่มบัญชี */
+.manage-account-buttons button:nth-child(1):hover { 
+  background: linear-gradient(135deg, #218838, #1ea085);
+}
+
+.manage-account-buttons button:nth-child(2) { 
+  background: linear-gradient(135deg, #dc3545, #e83e8c);
+} /* ลบบัญชี */
+.manage-account-buttons button:nth-child(2):hover { 
+  background: linear-gradient(135deg, #c82333, #d91a72);
+}
+
+.manage-account-buttons button:nth-child(3) { 
+  background: linear-gradient(135deg, #ffc107, #fd7e14);
+  color: #212529;
+} /* แก้ไขบัญชี */
+.manage-account-buttons button:nth-child(3):hover { 
+  background: linear-gradient(135deg, #e0a800, #e36407);
+}
+
+/* ปุ่มจัดการประเภท */
+.manage-type-buttons button:nth-child(1) { 
+  background: linear-gradient(135deg, #17a2b8, #6f42c1);
+} /* เพิ่มประเภท */
+.manage-type-buttons button:nth-child(1):hover { 
+  background: linear-gradient(135deg, #138496, #5a2d9c);
+}
+
+.manage-type-buttons button:nth-child(2) { 
+  background: linear-gradient(135deg, #6610f2, #e83e8c);
+} /* แก้ไขประเภท */
+.manage-type-buttons button:nth-child(2):hover { 
+  background: linear-gradient(135deg, #520dc2, #d91a72);
+}
+
+.manage-type-buttons button:nth-child(3) { 
+  background: linear-gradient(135deg, #e83e8c, #dc3545);
+} /* ลบประเภท */
+.manage-type-buttons button:nth-child(3):hover { 
+  background: linear-gradient(135deg, #d91a72, #c82333);
+}
+
+/* Responsive สำหรับมือถือ */
+@media screen and (max-width: 600px) {
+  .compact-button-group {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  
+  .compact-button-group button {
+    padding: 8px 6px;
+    font-size: 13px;
+    min-height: 36px;
+    white-space: normal;
+  }
+}
+
+/* สำหรับหน้าจอขนาดกลาง */
+@media screen and (min-width: 601px) and (max-width: 900px) {
+  .compact-button-group {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+  }
+}
+
+/* สำหรับหน้าจอขนาดเล็กมาก */
+@media screen and (max-width: 380px) {
+  .compact-button-group button {
+    font-size: 11px;
+    padding: 5px 3px;
+    min-height: 30px;
+  }
+}
+/* ================================================= */
+/* ✅ แก้ไข CSS: จัดระเบียบปุ่มจัดการบัญชีใหม่ (วางทับของเดิมท้ายไฟล์) */
+/* ================================================= */
+
+.compact-button-group {
+  display: grid;
+  /* ค่าเริ่มต้น (Desktop): 3 คอลัมน์ */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px; /* เพิ่มช่องว่างเล็กน้อย */
+  width: 100%;
+  margin: 10px 0;
+}
+
+/* สไตล์พื้นฐานของปุ่ม */
+.compact-button-group button {
+  padding: 8px 10px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px; /* มุมมนขึ้น */
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  font-weight: bold;
+}
+
+.compact-button-group button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* --- สีของปุ่มต่างๆ --- */
+.manage-account-buttons button:nth-child(1) { background: linear-gradient(135deg, #28a745, #20c997); } /* เพิ่ม */
+.manage-account-buttons button:nth-child(2) { background: linear-gradient(135deg, #dc3545, #e83e8c); } /* ลบ */
+.manage-account-buttons button:nth-child(3) { background: linear-gradient(135deg, #ffc107, #fd7e14); color: #000; } /* แก้ไข */
+.manage-account-buttons button:nth-child(4) { background: linear-gradient(135deg, #6c757d, #495057); } /* เปลี่ยนรหัส (สีเทาเข้มดูทางการ) */
+
+/* ✅✅✅ ไฮไลท์: จัดปุ่มเปลี่ยนรหัสให้อยู่ตรงกลางบนคอมพิวเตอร์ ✅✅✅ */
+.manage-account-buttons button:nth-child(4) {
+    /* สั่งให้กินพื้นที่ตั้งแต่คอลัมน์ 1 ถึง สุดท้าย (เต็มแถว) */
+    grid-column: 1 / -1; 
+    
+    /* จัดให้กว้าง 60% และอยู่ตรงกลาง */
+    width: 60%; 
+    justify-self: center; 
+    margin-top: 5px;
+    background: linear-gradient(135deg, #ffc107, #ff9800); /* เปลี่ยนเป็นสีส้มทองให้เด่น */
+    color: #000;
+}
+
+
+/* --- RESPONSIVE: ปรับการแสดงผลตามขนาดหน้าจอ --- */
+
+/* 1. สำหรับ Tablet (ขนาดกลาง) 601px - 900px */
+/* แสดงผลแบบ 2x2 (2 แถว แถวละ 2 ปุ่ม) */
+@media screen and (min-width: 601px) and (max-width: 900px) {
+  .compact-button-group {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  /* Reset การจัดกลางของปุ่มที่ 4 ให้กลับมาเป็นปกติในโหมดนี้ */
+  .manage-account-buttons button:nth-child(4) {
+    grid-column: auto; /* กลับสู่ขนาดปกติ */
+    width: 100%;
+    margin-top: 0;
+  }
+}
+
+/* 2. สำหรับ Mobile (มือถือ) ต่ำกว่า 600px */
+/* แสดงผลเรียงลงมาทีละปุ่ม (Stack) */
+@media screen and (max-width: 600px) {
+  .compact-button-group {
+    grid-template-columns: 1fr; /* 1 คอลัมน์ */
+    gap: 8px;
+  }
+  
+  .manage-account-buttons button:nth-child(4) {
+    grid-column: auto;
+    width: 100%; /* เต็มจอในมือถือ */
+    margin-top: 0;
+  }
+}
+/* ================================================================= */
+/* ✅ แก้ไขพิเศษ: บังคับแถบเลือกวันที่เป็นแนวนอนเสมอ (ทั้งมือถือและคอม) */
+/* ================================================================= */
+
+/* กำหนดคอนเทนเนอร์หลักให้เรียงแนวนอนแบบ Flex */
+.centered-date-form.horizontal {
+    display: flex !important;         /* บังคับใช้ Flexbox */
+    flex-direction: row !important;   /* บังคับเรียงแนวนอนซ้ายไปขวา */
+    justify-content: center;          /* จัดกึ่งกลาง */
+    align-items: flex-end;            /* จัดให้ชิดขอบล่าง (ให้กล่อง input ตรงกัน) */
+    gap: 8px !important;              /* ระยะห่างระหว่างช่องซ้าย-ขวา */
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto 10px auto;
+}
+
+/* จัดการแต่ละกลุ่ม (Label + Input) ให้ยืดหดได้ */
+.centered-date-form.horizontal .centered-date-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;           /* สำคัญ: สั่งให้ยืดเต็มพื้นที่เท่าๆ กัน */
+    min-width: 0;      /* สำคัญ: ป้องกัน input ดันกล่องจนล้นจอในมือถือ */
+    margin-bottom: 0 !important;
+}
+
+/* ปรับขนาด Input วันที่ให้พอดีกับมือถือเมื่ออยู่คู่กัน */
+.centered-date-form.horizontal input[type="date"] {
+    width: 100% !important;     /* ให้กว้างเต็มกล่องของตัวเอง */
+    min-width: unset !important; /* ยกเลิกค่า min-width เดิม */
+    font-size: clamp(12px, 3.5vw, 16px) !important; /* ปรับขนาดตัวอักษรให้ยืดหยุ่น */
+    padding: 6px 2px !important; /* ลดขอบข้างเพื่อให้มีที่เหลือ */
+    text-align: center;
+    height: 40px !important;    /* กำหนดความสูงให้เท่ากัน */
+}
+
+/* ปรับขนาดตัวหนังสือหัวข้อ (จากวันที่/ถึงวันที่) */
+.centered-date-form.horizontal label {
+    font-size: clamp(12px, 3vw, 14px) !important;
+    white-space: nowrap;        /* ห้ามตัดคำขึ้นบรรทัดใหม่ */
+    margin-bottom: 4px !important;
+}
+/* ==========================================================================
+   FIX: แก้ไขปุ่มล้นใน Time Picker (สำหรับ style.css)
+   ========================================================================== */
+input[type="date"],
+input[type="time"],
+.date-time-group input {
+    /* 1. บังคับใช้ฟอนต์ระบบ (System Font) 
+       เพื่อให้ Android คำนวณความกว้างปุ่ม "ตั้งค่า/ยกเลิก" ได้ถูกต้อง */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+
+    /* 2. บังคับขนาดมาตรฐาน 16px 
+       - บนมือถือ: แก้ปัญหาปุ่มล้น และป้องกัน iPhone ซูมหน้าจอเอง
+       - บนคอม: ขนาดอ่านง่ายกำลังดี */
+    font-size: 16px !important;
+
+    /* 3. รีเซ็ตความสูงบรรทัด */
+    line-height: normal !important;
+    
+    /* 4. ปรับ Padding ให้เหมาะสม สวยงามทั้งคอมและมือถือ */
+    padding: 8px 5px !important;
+}
+
+/* === ปรับแต่งเพิ่มเติมเฉพาะมือถือ (เพื่อความสวยงามในจอเล็ก) === */
+@media screen and (max-width: 768px) {
+    input[type="date"],
+    input[type="time"] {
+        /* บีบระยะห่างตัวอักษรเล็กน้อย เพื่อให้ตัวเลขเวลา (เช่น 06:56) ไม่กินที่เยอะเกินไป */
+        letter-spacing: -0.3px !important;
+        
+        /* ปรับความสูงกล่องให้กดง่าย */
+        height: 42px !important;
+        min-height: 42px !important;
+    }
+}
+.summary-action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+/* ปุ่มบันทึก */
+#saveSummaryAsImageBtn {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+/* ปุ่มแชร์ */
+#shareSummaryImageBtn {
+    background: linear-gradient(135deg, #03A9F4, #0288D1);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+#saveSummaryAsImageBtn:hover,
+#shareSummaryImageBtn:hover {
+    transform: translateY(-1px);
+}
+
+/* ===== SUMMARY TABLE STYLES (เพิ่มใหม่) ===== */
+.summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: clamp(13px, 2.2vw, 15px);
+}
+
+.summary-table th,
+.summary-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.summary-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    color: #333;
+}
+
+.export-area {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin: 15px 0;
+}
+
+.share-btn-wrapper {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.share-btn-wrapper button {
+    background-color: #4a90e2;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.share-btn-wrapper button:hover {
+    background-color: #357abd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.share-btn-wrapper button:active {
+    transform: translateY(0);
+}
+
+/* Responsive สำหรับตารางสรุปบนมือถือ */
+@media screen and (max-width: 600px) {
+    .summary-table th,
+    .summary-table td {
+        padding: 6px 4px;
+        font-size: 12px;
+    }
+    
+    .share-btn-wrapper button {
+        width: 100%;
+        padding: 12px;
+    }
+}
+
+/* สีสำหรับตัวเลขในตารางสรุป */
+#daily-summary-body td:nth-child(2) { /* รายได้ */
+    color: #28a745;
+    font-weight: bold;
+}
+
+#daily-summary-body td:nth-child(3) { /* รายจ่าย */
+    color: #dc3545;
+    font-weight: bold;
+}
+
+#daily-summary-body td:nth-child(4) { /* คงเหลือ */
+    font-weight: bold;
+}

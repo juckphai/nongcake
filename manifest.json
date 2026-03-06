@@ -1,0 +1,46 @@
+{
+  "name": "Newacnongcake",
+  "short_name": "Newacnongcake",
+  "description": "แอปพลิเคชันบันทึกรายรับรายจ่ายส่วนตัว",
+  "start_url": "./index.html",
+  "id": "/Ac/",
+  "display": "standalone",
+  "background_color": "#FAFAD2",
+  "theme_color": "#4CAF50",
+  "orientation": "portrait",
+  "scope": "./",
+  "categories": ["finance", "productivity"],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "icons": [
+    {
+      "src": "./192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "หน้าจัดการบัญชี"
+    },
+    {
+      "src": "./screenshot2.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "หน้าสรุปข้อมูล"
+    }
+  ]
+}
