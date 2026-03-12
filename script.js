@@ -599,9 +599,15 @@ function setupSummaryControlsAndSave() {
 // ==============================================
 
 /**
- * ตรวจสอบความเท่ากันของข้อมูล
+ * ตรวจสอบความเท่ากันของข้อมูล (ปรับปรุงให้ใช้ ID ก่อน)
  */
 function isSameRecord(serverRecord, localRecord) {
+    // ✅ ถ้ามี ID ให้ใช้ ID ในการเปรียบเทียบ
+    if (serverRecord.id && localRecord.id) {
+        return serverRecord.id === localRecord.id;
+    }
+    
+    // fallback กรณีข้อมูลเก่าไม่มี ID
     if (serverRecord.createdTime && localRecord.createdTime) {
         const sTime = typeof serverRecord.createdTime.toDate === 'function' 
                       ? serverRecord.createdTime.toDate().toISOString() 
@@ -657,7 +663,7 @@ async function addTransactionRealtime(newRecord) {
 }
 
 /**
- * แก้ไขรายการแบบ Real-time
+ * แก้ไขรายการแบบ Real-time (ปรับปรุงให้ใช้ ID)
  */
 async function editTransactionRealtime(oldRecord, newRecord) {
     if (!currentUser) return;
@@ -672,13 +678,23 @@ async function editTransactionRealtime(oldRecord, newRecord) {
 
             const serverRecords = snap.data().records || [];
             
-            const index = serverRecords.findIndex(r => isSameRecord(r, oldRecord));
+            let index = -1;
+            
+            // ✅ ค้นหาด้วย ID ก่อน
+            if (oldRecord.id) {
+                index = serverRecords.findIndex(r => r.id === oldRecord.id);
+            }
+            
+            // ถ้าไม่พบด้วย ID ให้ใช้ isSameRecord แบบเก่า
+            if (index === -1) {
+                index = serverRecords.findIndex(r => isSameRecord(r, oldRecord));
+            }
 
             if (index === -1) {
                 console.warn("⚠️ ไม่พบข้อมูลเดิมบน Server -> ทำการเพิ่มใหม่แทน");
                 serverRecords.push(newRecord);
             } else {
-                console.log(`✓ เจอข้อมูลเดิมที่ตำแหน่ง ${index} -> กำลังอัปเดต...`);
+                console.log(`✓ เจอข้อมูลเดิมที่ตำแหน่ง ${index} (ID: ${oldRecord.id}) -> กำลังอัปเดต...`);
                 serverRecords[index] = newRecord;
             }
 
@@ -695,7 +711,7 @@ async function editTransactionRealtime(oldRecord, newRecord) {
 }
 
 /**
- * ลบรายการแบบ Real-time
+ * ลบรายการแบบ Real-time (ปรับปรุงให้ใช้ ID)
  */
 async function deleteRecordRealtime(record) {
     if (!currentUser) return;
@@ -712,14 +728,21 @@ async function deleteRecordRealtime(record) {
 
             const serverRecords = snap.data().records || [];
 
-            const filtered = serverRecords.filter(r =>
-                !(
-                    r.dateTime === record.dateTime &&
-                    r.amount === record.amount &&
-                    r.description === record.description &&
-                    r.type === record.type
-                )
-            );
+            // ✅ ถ้ามี ID ให้ใช้ ID ในการลบ
+            let filtered;
+            if (record.id) {
+                filtered = serverRecords.filter(r => r.id !== record.id);
+            } else {
+                // fallback กรณีข้อมูลเก่าไม่มี ID
+                filtered = serverRecords.filter(r =>
+                    !(
+                        r.dateTime === record.dateTime &&
+                        r.amount === record.amount &&
+                        r.description === record.description &&
+                        r.type === record.type
+                    )
+                );
+            }
 
             tx.set(accDocRef, {
                 records: filtered,
@@ -791,11 +814,13 @@ async function loadFromFirebase() {
             if (records.length > 0) {
                 console.log("พบข้อมูล Local, กำลังผสานกับ Server...");
                 serverRecords.forEach(serverRec => {
+                    // ✅ ใช้ ID ในการตรวจสอบซ้ำ
                     const isDuplicate = records.some(localRec => 
-                        localRec.dateTime === serverRec.dateTime &&
-                        localRec.amount === serverRec.amount &&
-                        localRec.description === serverRec.description &&
-                        localRec.account === serverRec.account
+                        (localRec.id && localRec.id === serverRec.id) || 
+                        (localRec.dateTime === serverRec.dateTime &&
+                         localRec.amount === serverRec.amount &&
+                         localRec.description === serverRec.description &&
+                         localRec.account === serverRec.account)
                     );
                     
                     if (!isDuplicate) {
@@ -846,6 +871,9 @@ async function loadFromFirebase() {
  * ตรวจสอบว่ารายการเหมือนกันหรือไม่
  */
 function isRecordEqual(rec1, rec2) {
+    if (rec1.id && rec2.id) {
+        return rec1.id === rec2.id;
+    }
     return rec1.dateTime === rec2.dateTime &&
            rec1.amount === rec2.amount &&
            rec1.description === rec2.description &&
@@ -950,7 +978,7 @@ function setupRealtimeListener() {
 }
 
 /**
- * ตั้งค่าระบบฟังข้อมูลสำหรับแต่ละบัญชี
+ * ตั้งค่าระบบฟังข้อมูลสำหรับแต่ละบัญชี (ปรับปรุงให้ Merge ข้อมูลอย่างปลอดภัย)
  */
 function setupAccountListeners(SHARED_ID) {
     accounts.forEach(accName => {
@@ -964,10 +992,14 @@ function setupAccountListeners(SHARED_ID) {
                     const data = doc.data();
                     const serverRecords = data.records || [];
                     
-                    records = records.filter(r => r.account !== accName);
+                    // --- ✅ วิธี Merge ข้อมูลแบบปลอดภัย (ไม่ Filter & Concat แบบรุนแรง) ---
+                    // 1. เก็บข้อมูลของบัญชีอื่นไว้
+                    let otherAccountRecords = records.filter(r => r.account !== accName);
                     
-                    records = records.concat(serverRecords);
+                    // 2. เอาข้อมูลจาก Server ของบัญชีนี้มารวม
+                    records = [...otherAccountRecords, ...serverRecords];
                     
+                    // 3. จัดเรียงข้อมูลใหม่
                     records.sort((a, b) => parseLocalDateTime(b.dateTime) - parseLocalDateTime(a.dateTime));
                     
                     if (data.lastUpdated) {
@@ -1084,11 +1116,11 @@ async function deleteAccountFromFirebase(targetAccountName) {
 }
 
 // ==============================================
-// ฟังก์ชันเพิ่ม/แก้ไขรายการ
+// ฟังก์ชันเพิ่ม/แก้ไขรายการ (ปรับปรุงให้มี ID)
 // ==============================================
 
 /**
- * เพิ่มรายการใหม่หรือแก้ไขรายการที่มีอยู่
+ * เพิ่มรายการใหม่หรือแก้ไขรายการที่มีอยู่ (ปรับปรุงให้รองรับ Multi-Account อย่างปลอดภัย)
  */
 async function addEntry() {
     let entryDateInput = document.getElementById('entryDate').value;
@@ -1136,6 +1168,8 @@ async function addEntry() {
         const originalRecord = JSON.parse(JSON.stringify(records[editingIndex]));
         
         const updatedRecord = { 
+            ...originalRecord,
+            id: originalRecord.id, // รักษา ID เดิมไว้
             dateTime, 
             type: typeText, 
             description, 
@@ -1157,7 +1191,11 @@ async function addEntry() {
         showToast(`✓ แก้ไขข้อมูลเรียบร้อย (กำลังอัปเดต Server...)`, 'info');
 
     } else {
+        // ✅ สร้าง ID หลักที่ไม่ซ้ำกัน
+        const mainId = Date.now() + Math.random().toString(36).substr(2, 9);
+        
         const newRecord = { 
+            id: mainId, // ✅ เพิ่ม ID
             dateTime, 
             type: typeText, 
             description, 
@@ -1169,23 +1207,32 @@ async function addEntry() {
             editedTime: null
         };
         
-        records.push(newRecord);
-        if (currentUser) {
-            transactionPromises.push(addTransactionRealtime(newRecord));
-        }
+        // ✅ เตรียมรายการที่จะเพิ่ม (รวมรายการหลักและรายการในบัญชีอื่น)
+        let recordsToAdd = [newRecord];
 
         const selectedCheckboxes = document.querySelectorAll('#multiAccountCheckboxes input:checked');
         selectedCheckboxes.forEach(checkbox => {
-            const targetAccount = checkbox.value;
-            const clonedRecord = JSON.parse(JSON.stringify(newRecord));
-            clonedRecord.account = targetAccount;
+            // ✅ สร้าง ID ใหม่สำหรับแต่ละสาขา
+            const clonedId = Date.now() + Math.random().toString(36).substr(2, 9) + "_clone";
             
-            records.push(clonedRecord);
+            const clonedRecord = {
+                ...newRecord,
+                id: clonedId, // ✅ ให้ ID ใหม่ป้องกันการซ้ำ
+                account: checkbox.value
+            };
             
-            if (currentUser) {
-                transactionPromises.push(addTransactionRealtime(clonedRecord));
-            }
+            recordsToAdd.push(clonedRecord);
         });
+        
+        // ✅ 1. เพิ่มเข้าตัวแปร local ทั้งหมดทีเดียว
+        records = [...records, ...recordsToAdd];
+        
+        // ✅ 2. ยิงขึ้น Firebase พร้อมกัน (Async)
+        if (currentUser) {
+            recordsToAdd.forEach(rec => {
+                transactionPromises.push(addTransactionRealtime(rec));
+            });
+        }
         
         showToast(`✓ เพิ่มข้อมูลในเครื่องแล้ว (กำลังส่งขึ้น Server...)`, 'info');
     }
@@ -1948,7 +1995,7 @@ function editRecord(index) {
 }
 
 /**
- * ลบรายการ
+ * ลบรายการ (ปรับปรุงให้ใช้ ID)
  */
 async function deleteRecord(index) { 
     if (!confirm('ยืนยันลบรายการนี้?')) return;
@@ -1978,7 +2025,7 @@ function toggleRecordsVisibility() {
 }
 
 /**
- * ลบข้อมูลตามวันที่
+ * ลบข้อมูลตามวันที่ (ปรับปรุงให้ใช้ ID)
  */
 async function deleteRecordsByDate() {
     const dateInput = document.getElementById('deleteByDateInput');
@@ -2125,15 +2172,22 @@ async function importEntriesFromAccount() {
         let skippedCount = 0;
         
         recordsToImport.forEach(recordToAdd => {
+            // ✅ ตรวจสอบซ้ำด้วย ID (ถ้ามี) หรือใช้ข้อมูลเก่า
             const isDuplicate = records.some(existingRecord => 
-                existingRecord.account === currentAccount &&
-                existingRecord.dateTime === recordToAdd.dateTime &&
-                existingRecord.amount === recordToAdd.amount &&
-                existingRecord.description === recordToAdd.description &&
-                existingRecord.type === recordToAdd.type
+                (existingRecord.id && existingRecord.id === recordToAdd.id) ||
+                (existingRecord.account === currentAccount &&
+                 existingRecord.dateTime === recordToAdd.dateTime &&
+                 existingRecord.amount === recordToAdd.amount &&
+                 existingRecord.description === recordToAdd.description &&
+                 existingRecord.type === recordToAdd.type)
             );
             if (!isDuplicate) {
-                const newEntry = { ...recordToAdd, account: currentAccount };
+                // ✅ สร้าง ID ใหม่สำหรับรายการที่นำเข้า
+                const newEntry = { 
+                    ...recordToAdd, 
+                    id: Date.now() + Math.random().toString(36).substr(2, 9) + "_import",
+                    account: currentAccount 
+                };
                 records.push(newEntry);
                 importedCount++;
             } else {
@@ -3349,7 +3403,7 @@ async function handleSingleDateExportAs(format) {
 // ==============================================
 
 /**
- * โหลดข้อมูลจากไฟล์
+ * โหลดข้อมูลจากไฟล์ (ปรับปรุงให้รองรับ ID)
  */
 async function loadFromFile(event) {
     const file = event.target.files[0]; 
@@ -3470,15 +3524,23 @@ async function processDateRangeImport(importedData) {
     let skippedCount = 0;
     
     recordsToAdd.forEach(recordToAdd => {
+        // ✅ ตรวจสอบซ้ำด้วย ID (ถ้ามี)
         const isDuplicate = records.some(existingRecord =>
-            existingRecord.account === accountName &&
-            existingRecord.dateTime === recordToAdd.dateTime &&
-            existingRecord.amount === recordToAdd.amount &&
-            existingRecord.description === recordToAdd.description &&
-            existingRecord.type === recordToAdd.type
+            (existingRecord.id && existingRecord.id === recordToAdd.id) ||
+            (existingRecord.account === accountName &&
+             existingRecord.dateTime === recordToAdd.dateTime &&
+             existingRecord.amount === recordToAdd.amount &&
+             existingRecord.description === recordToAdd.description &&
+             existingRecord.type === recordToAdd.type)
         );
         if (!isDuplicate) {
-            records.push({ ...recordToAdd, account: accountName });
+            // ✅ สร้าง ID ใหม่ถ้าไม่มี
+            const newRecord = {
+                ...recordToAdd,
+                id: recordToAdd.id || (Date.now() + Math.random().toString(36).substr(2, 9) + "_import"),
+                account: accountName
+            };
+            records.push(newRecord);
             addedCount++;
         } else {
             skippedCount++;
@@ -3540,15 +3602,16 @@ function mergeImportedRecords(accountName, recordsToAdd) {
 }
 
 /**
- * ตรวจสอบว่ารายการซ้ำหรือไม่
+ * ตรวจสอบว่ารายการซ้ำหรือไม่ (ปรับปรุงให้ใช้ ID)
  */
 function isRecordDuplicate(accountName, recordToCheck) {
     return records.some(existingRecord =>
-        existingRecord.account === accountName &&
-        existingRecord.dateTime === recordToCheck.dateTime &&
-        existingRecord.amount === recordToCheck.amount &&
-        existingRecord.description === recordToCheck.description &&
-        existingRecord.type === recordToCheck.type
+        (existingRecord.id && existingRecord.id === recordToCheck.id) ||
+        (existingRecord.account === accountName &&
+         existingRecord.dateTime === recordToCheck.dateTime &&
+         existingRecord.amount === recordToCheck.amount &&
+         existingRecord.description === recordToCheck.description &&
+         existingRecord.type === recordToCheck.type)
     );
 }
 
@@ -3617,15 +3680,23 @@ function importFromFileForMerging(event) {
                 let skippedCount = 0;
 
                 recordsToAdd.forEach(recordToAdd => {
+                    // ✅ ตรวจสอบซ้ำด้วย ID
                     const isDuplicate = records.some(existingRecord =>
-                        existingRecord.account === currentAccount &&
-                        existingRecord.dateTime === recordToAdd.dateTime &&
-                        existingRecord.amount === recordToAdd.amount &&
-                        existingRecord.description === recordToAdd.description &&
-                        existingRecord.type === recordToAdd.type
+                        (existingRecord.id && existingRecord.id === recordToAdd.id) ||
+                        (existingRecord.account === currentAccount &&
+                         existingRecord.dateTime === recordToAdd.dateTime &&
+                         existingRecord.amount === recordToAdd.amount &&
+                         existingRecord.description === recordToAdd.description &&
+                         existingRecord.type === recordToAdd.type)
                     );
                     if (!isDuplicate) {
-                        records.push({ ...recordToAdd, account: currentAccount });
+                        // ✅ สร้าง ID ใหม่ถ้าไม่มี
+                        const newRecord = {
+                            ...recordToAdd,
+                            id: recordToAdd.id || (Date.now() + Math.random().toString(36).substr(2, 9) + "_import"),
+                            account: currentAccount
+                        };
+                        records.push(newRecord);
                         addedCount++;
                     } else {
                         skippedCount++;
